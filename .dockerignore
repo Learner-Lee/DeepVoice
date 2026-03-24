@@ -1,0 +1,12 @@
+# Exclude large audio files from Docker image
+# The web app only needs DATASET-balanced.csv, not raw audio
+KAGGLE/AUDIO/
+venv/
+web/cache/
+*.png
+*.mp3
+*.wav
+*.flac
+__pycache__/
+**/__pycache__/
+*.pyc

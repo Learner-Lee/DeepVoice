@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+*.mp3
+*.wav
+.env
+.venv/
+venv/
+*.log
+.DS_Store
+node_modules/
+dist/
+build/

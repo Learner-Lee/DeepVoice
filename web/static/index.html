@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DeepVoice - AI 声音识别教学平台</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
+
+<!-- ── Sidebar ──────────────────────────────────────────────────── -->
+<aside id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">🎙️</div>
+    <div>
+      <div class="sidebar-title">DeepVoice</div>
+      <div class="sidebar-subtitle">AI 声音识别教学平台</div>
+    </div>
+  </div>
+
+  <button class="sidebar-toggle" onclick="toggleSidebar()" title="收起/展开">◀</button>
+
+  <nav>
+    <div class="nav-section">导航</div>
+
+    <div class="nav-item" data-page="dashboard" onclick="navigate('dashboard')">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">数据总览 Dashboard</span>
+    </div>
+
+    <div class="nav-section">深度学习模型</div>
+
+    <div class="nav-item" data-page="model-logistic_regression" onclick="navigate('model-logistic_regression')">
+      <span class="nav-icon">📈</span>
+      <span class="nav-label">逻辑回归</span>
+    </div>
+    <div class="nav-item" data-page="model-random_forest" onclick="navigate('model-random_forest')">
+      <span class="nav-icon">🌲</span>
+      <span class="nav-label">随机森林</span>
+    </div>
+    <div class="nav-item" data-page="model-svm" onclick="navigate('model-svm')">
+      <span class="nav-icon">🔷</span>
+      <span class="nav-label">支持向量机 SVM</span>
+    </div>
+    <div class="nav-item" data-page="model-xgboost" onclick="navigate('model-xgboost')">
+      <span class="nav-icon">⚡</span>
+      <span class="nav-label">XGBoost</span>
+    </div>
+    <div class="nav-item" data-page="model-knn" onclick="navigate('model-knn')">
+      <span class="nav-icon">📍</span>
+      <span class="nav-label">K近邻 KNN</span>
+    </div>
+    <div class="nav-item" data-page="model-mlp" onclick="navigate('model-mlp')">
+      <span class="nav-icon">🧠</span>
+      <span class="nav-label">神经网络 MLP</span>
+    </div>
+
+    <div class="nav-section">结果分析</div>
+
+    <div class="nav-item" data-page="summary" onclick="navigate('summary')">
+      <span class="nav-icon">📋</span>
+      <span class="nav-label">模型总结 Summary</span>
+    </div>
+
+    <div class="nav-item" data-page="test" onclick="navigate('test')">
+      <span class="nav-icon">🔬</span>
+      <span class="nav-label">测试模型</span>
+    </div>
+  </nav>
+</aside>
+
+<!-- ── Main ──────────────────────────────────────────────────────── -->
+<div id="main">
+  <div id="topbar">
+    <div class="page-title" id="page-title">📊 数据总览 Dashboard</div>
+    <div class="topbar-badge">DeepVoice v1.0</div>
+    <div class="topbar-badge">教学演示平台</div>
+  </div>
+  <div id="content">
+    <!-- Content injected by JS -->
+    <div style="display:flex;align-items:center;justify-content:center;height:200px;">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Scripts ───────────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

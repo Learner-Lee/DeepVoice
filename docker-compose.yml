@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  deepvoice:
+    build: .
+    container_name: deepvoice-app
+    ports:
+      - "8300:8300"
+    volumes:
+      # Mount data directory (read-only)
+      - ./KAGGLE:/app/KAGGLE:ro
+      # Mount cache directory (writable) to persist model results
+      - ./web/cache:/app/web/cache
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8300/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
