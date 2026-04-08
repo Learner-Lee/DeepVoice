@@ -1,12 +1,19 @@
 # Exclude large audio files from Docker image
-# The web app only needs DATASET-balanced.csv, not raw audio
 KAGGLE/AUDIO/
 venv/
 web/cache/
-*.png
 *.mp3
 *.wav
 *.flac
 __pycache__/
 **/__pycache__/
 *.pyc
+
+# Exclude large DL files (keep code, checkpoints, CSVs, PNGs)
+DL/specrnet-deepfake-detection/results/
+DL/specrnet-deepfake-detection/results_final/
+DL/specrnet-deepfake-detection/results_cross/
+DL/specrnet-deepfake-detection/results_cross_final/
+DL/specrnet-deepfake-detection/paper/
+DL/specrnet-deepfake-detection/lfcc_4s/
+DL/specrnet-deepfake-detection/*.ipynb

@@ -196,6 +196,76 @@ async def get_job(jid: str):
     return JSONResponse(job)
 
 
+# ── SpecRNet ──────────────────────────────────────────────────────────────────
+
+@app.get("/api/specrnet/precomputed")
+async def specrnet_precomputed():
+    """Return pre-computed training + evaluation results from CSV/JSON files."""
+    from web.specrnet_runner import load_precomputed_results
+    return JSONResponse(load_precomputed_results())
+
+
+def _run_specrnet_demo_bg(jid: str, max_per_class: int):
+    try:
+        from web.specrnet_runner import run_demo_evaluation
+        _job_append(jid, "⏳ 启动 SpecRNet 演示评估...")
+        result = run_demo_evaluation(
+            max_per_class=max_per_class,
+            progress_cb=lambda m: _job_append(jid, m)
+        )
+        _job_set(jid, status="done", result=result)
+    except Exception as e:
+        import traceback
+        _job_set(jid, status="error",
+                 result={"error": str(e), "trace": traceback.format_exc()})
+
+
+@app.post("/api/specrnet/run")
+async def specrnet_run(max_per_class: int = 20):
+    jid = "specrnet_demo"
+    with _jobs_lock:
+        existing = _jobs.get(jid)
+        if existing and existing["status"] == "running":
+            return JSONResponse({"job_id": jid, "already_running": True})
+
+    _jobs[jid] = {"status": "running", "progress": [], "result": None}
+    t = threading.Thread(target=_run_specrnet_demo_bg, args=(jid, max_per_class), daemon=True)
+    t.start()
+    return JSONResponse({"job_id": jid})
+
+
+@app.post("/api/specrnet/predict")
+async def specrnet_predict(file: UploadFile = File(...)):
+    """Predict real/fake for a single audio file using SpecRNet."""
+    suffix = Path(file.filename).suffix.lower() if file.filename else ".wav"
+    if suffix not in (".wav", ".mp3", ".flac", ".ogg", ".m4a"):
+        raise HTTPException(status_code=400, detail="不支持的音频格式")
+
+    content = await file.read()
+    if len(content) > 200 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="文件过大 (最大200MB)")
+
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+        tmp.write(content)
+        tmp_path = tmp.name
+
+    try:
+        from web.specrnet_runner import predict_audio, extract_lfcc
+        result = predict_audio(tmp_path)
+
+        # Also return LFCC feature snapshot for visualization
+        lfcc = extract_lfcc(tmp_path)
+        # Downsample for transfer: mean across time per bin, top 20 bins
+        lfcc_profile = [round(float(lfcc[i].mean()), 4) for i in range(min(20, lfcc.shape[0]))]
+        result["lfcc_profile"] = lfcc_profile
+        return JSONResponse(result)
+    except Exception as e:
+        import traceback
+        raise HTTPException(status_code=500, detail=f"SpecRNet 预测失败: {str(e)}")
+    finally:
+        os.unlink(tmp_path)
+
+
 # ── Summary ───────────────────────────────────────────────────────────────────
 
 @app.get("/api/summary")
@@ -220,8 +290,8 @@ async def predict(
         raise HTTPException(status_code=400, detail=f"无效模型: {model_name}")
 
     suffix = Path(file.filename).suffix.lower() if file.filename else ".wav"
-    if suffix not in (".wav", ".mp3", ".flac", ".ogg", ".m4a"):
-        raise HTTPException(status_code=400, detail="不支持的音频格式，请上传 wav/mp3/flac")
+    if suffix not in (".wav", ".mp3", ".flac", ".ogg", ".m4a", ".webm"):
+        raise HTTPException(status_code=400, detail="不支持的音频格式，请上传 wav/mp3/flac/ogg/webm")
 
     content = await file.read()
     if len(content) > 200 * 1024 * 1024:
@@ -367,12 +437,12 @@ if __name__ == "__main__":
     import socket
     # Check port availability
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    result = sock.connect_ex(("localhost", 8300))
+    result = sock.connect_ex(("localhost", 8443))
     sock.close()
     if result == 0:
-        print("错误: 端口 8300 已被占用！请选择其他端口。")
+        print("错误: 端口 8443 已被占用！请选择其他端口。")
         sys.exit(1)
 
     import uvicorn
-    print("DeepVoice 启动中... 访问 http://localhost:8300")
-    uvicorn.run("web.app:app", host="0.0.0.0", port=8300, reload=False)
+    print("DeepVoice 启动中... 访问 http://localhost:8443")
+    uvicorn.run("web.app:app", host="0.0.0.0", port=8443, reload=False)

@@ -24,9 +24,11 @@ COPY KAGGLE/DATASET-balanced.csv ./KAGGLE/DATASET-balanced.csv
 COPY ml/ ./ml/
 COPY extract_features.py .
 COPY web/ ./web/
+# Copy SpecRNet model code and checkpoints (excludes large files via .dockerignore)
+COPY DL/ ./DL/
 
-# Expose port 8300
-EXPOSE 8300
+# Expose port 8443
+EXPOSE 8443
 
 # Check port not in use and start server
-CMD ["python", "-m", "uvicorn", "web.app:app", "--host", "0.0.0.0", "--port", "8300"]
+CMD ["python", "-m", "uvicorn", "web.app:app", "--host", "0.0.0.0", "--port", "8443"]

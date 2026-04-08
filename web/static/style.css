@@ -170,14 +170,26 @@ nav { flex: 1; padding: 12px 0; overflow-y: auto; overflow-x: hidden; }
   height: 56px;
   display: flex;
   align-items: center;
-  gap: 12px;
   flex-shrink: 0;
+}
+
+.topbar-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.topbar-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .page-title {
   font-size: 16px;
   font-weight: 600;
-  flex: 1;
 }
 
 .topbar-badge {
@@ -299,6 +311,7 @@ tr:hover td { background: var(--bg); }
 .text-center { text-align: center; }
 
 /* ── Progress & logs ─────────────────────────────────── */
+#demo-log,
 #progress-container {
   background: #0f172a;
   border-radius: var(--radius);
@@ -587,6 +600,47 @@ select {
 }
 
 select:focus { outline: none; border-color: var(--primary); }
+
+/* ── Language segmented control (Apple style) ────────── */
+.lang-segmented {
+  display: flex;
+  align-items: center;
+  background: rgba(120,120,128,.12);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.lang-seg {
+  border: none;
+  background: transparent;
+  padding: 5px 16px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  transition: background .2s cubic-bezier(.4,0,.2,1),
+              box-shadow .2s cubic-bezier(.4,0,.2,1),
+              color .15s;
+  letter-spacing: .01em;
+  white-space: nowrap;
+  -webkit-font-smoothing: antialiased;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+}
+
+.lang-seg.active {
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.18), 0 0 0 .5px rgba(0,0,0,.04);
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.lang-seg:not(.active):hover {
+  background: rgba(0,0,0,.06);
+  color: #222;
+}
 
 /* ── Responsive ──────────────────────────────────────── */
 @media (max-width: 640px) {
