@@ -179,7 +179,7 @@ const TRANSLATIONS = {
     sr_baseline_note: '💡 以相同超参数在三个不同随机种子下训练，验证结果的<strong>稳定性与可复现性</strong>。',
     sr_bl_col1: '变体', sr_bl_col2: '随机种子',
     sr_ablation_note: '💡 <strong>消融实验</strong>通过逐一移除或修改模型组件，分析每个组件对性能的贡献。',
-    sr_abl_col1: '实验配置', sr_abl_col5: '说明',
+    sr_abl_col1: '实验配置', sr_abl_col_params: '参数量', sr_abl_col_time: '推理时间', sr_abl_col5: '说明',
     sr_abl_noatt: '移除注意力机制',
     sr_abl_gap: '用全局平均池化替换GRU',
     sr_abl_dur1: '仅使用1秒音频',
@@ -396,7 +396,7 @@ const TRANSLATIONS = {
     sr_baseline_note: '💡 Training with identical hyperparameters across three random seeds to validate <strong>stability and reproducibility</strong>.',
     sr_bl_col1: 'Variant', sr_bl_col2: 'Seed',
     sr_ablation_note: '💡 <strong>Ablation study</strong>: each component is removed or modified to quantify its contribution to performance.',
-    sr_abl_col1: 'Experiment', sr_abl_col5: 'Description',
+    sr_abl_col1: 'Experiment', sr_abl_col_params: 'Params', sr_abl_col_time: 'Inference Time', sr_abl_col5: 'Description',
     sr_abl_noatt: 'Remove attention modules',
     sr_abl_gap: 'Replace GRU with global average pooling',
     sr_abl_dur1: 'Use only 1-second audio clips',
@@ -740,25 +740,36 @@ async function renderSpecRNet() {
     <div class="alert alert-info" style="margin-bottom:16px;">${t('sr_ablation_note')}</div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>${t('sr_abl_col1')}</th><th>AUC ↑</th><th>EER ↓</th><th>F1 ↑</th><th>${t('acc_label')} ↑</th><th>${t('sr_abl_col5')}</th></tr></thead>
+        <thead><tr><th>${t('sr_abl_col1')}</th><th>AUC ↑</th><th>EER ↓</th><th>F1 ↑</th><th>${t('acc_label')} ↑</th><th>${t('sr_abl_col_params')}</th><th>${t('sr_abl_col_time')}</th><th>${t('sr_abl_col5')}</th></tr></thead>
         <tbody>
-          ${ablation.map(r => {
-            const ablLabels = {
-              'no-att': t('sr_abl_noatt'),
-              'gap': t('sr_abl_gap'),
-              'duration_1s': t('sr_abl_dur1'),
-              'weighted_loss_off': t('sr_abl_wloff'),
-              'weighted_loss_on': t('sr_abl_wlon'),
-            };
-            return `<tr>
-              <td><strong>${r.experiment}</strong></td>
-              <td>${(r.AUC*100).toFixed(2)}%</td>
-              <td>${(r.EER*100).toFixed(2)}%</td>
-              <td>${(r.F1*100).toFixed(2)}%</td>
-              <td>${(r.Accuracy*100).toFixed(2)}%</td>
-              <td style="font-size:11px;color:#64748b">${ablLabels[r.experiment] || ''}</td>
-            </tr>`;
-          }).join('')}
+          ${(() => {
+            const expToVariant = { duration_1s: 'duration_1s_default' };
+            const speedMap = {};
+            (speed || []).forEach(r => { speedMap[r.variant] = r; });
+            return ablation.map(r => {
+              const ablLabels = {
+                'no-att': t('sr_abl_noatt'),
+                'gap': t('sr_abl_gap'),
+                'duration_1s': t('sr_abl_dur1'),
+                'weighted_loss_off': t('sr_abl_wloff'),
+                'weighted_loss_on': t('sr_abl_wlon'),
+              };
+              const key = expToVariant[r.experiment] || r.experiment;
+              const sp = speedMap[key];
+              const paramsStr = sp ? (sp.params >= 1e6 ? (sp.params/1e6).toFixed(2)+'M' : (sp.params/1e3).toFixed(1)+'K') : '—';
+              const timeStr  = sp ? sp.inference_ms_per_sample.toFixed(2)+' ms' : '—';
+              return `<tr>
+                <td><strong>${r.experiment}</strong></td>
+                <td>${(r.AUC*100).toFixed(2)}%</td>
+                <td>${(r.EER*100).toFixed(2)}%</td>
+                <td>${(r.F1*100).toFixed(2)}%</td>
+                <td>${(r.Accuracy*100).toFixed(2)}%</td>
+                <td style="font-family:monospace">${paramsStr}</td>
+                <td style="font-family:monospace">${timeStr}</td>
+                <td style="font-size:11px;color:#64748b">${ablLabels[r.experiment] || ''}</td>
+              </tr>`;
+            }).join('');
+          })()}
         </tbody>
       </table>
     </div>
